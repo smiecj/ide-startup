@@ -4,12 +4,8 @@ import * as Koa from 'koa';
 import * as koaStatic from 'koa-static';
 import { Deferred } from '@opensumi/ide-core-common';
 import { IServerAppOpts, ServerApp, NodeModule } from '@opensumi/ide-core-node';
-import {
-  WebSocketHandler,
-  CommonChannelHandler,
-} from '@opensumi/ide-connection/lib/node';
-import serve = require('koa-static');
-const mount = require('koa-mount');
+// import serve = require('koa-static');
+// const mount = require('koa-mount');
 
 // export const DEFAULT_OPENVSX_REGISTRY = 'https://marketplace.smartide.cn'; // China Mirror
 export const DEFAULT_OPENVSX_REGISTRY = 'https://open-vsx.org'; // Official Registry
@@ -55,6 +51,10 @@ export async function startServer(arg1: NodeModule[] | Partial<IServerAppOpts>) 
 
   const serverApp = new ServerApp(opts);
   const server = http.createServer(app.callback());
+
+  if (process.env.NODE_ENV === 'production') {
+    app.use(koaStatic(path.join(__dirname, '../../dist')));
+  }
 
   await serverApp.start(server);
 
