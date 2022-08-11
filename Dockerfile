@@ -1,4 +1,4 @@
-FROM node:14.16.0 as builder
+FROM node:14 as builder
 
 # 用户工作空间，用于打包到前端工作空间地址
 ENV WORKSPACE_DIR workspace
@@ -8,7 +8,7 @@ ARG code_home=/opt/coding
 ARG startup_home=${code_home}/ide-startup
 ARG core_home=${code_home}/opensumi-core
 RUN mkdir -p ${code_home}
-RUN cd ${code_home} && git clone https://github.com/opensumi/ide-startup
+RUN cd ${code_home} && git clone https://github.com/smiecj/ide-startup -b dev_1_16
 
 ENV ELECTRON_MIRROR http://npm.taobao.org/mirrors/electron/
 
@@ -19,6 +19,8 @@ ARG registry="https://registry.npm.taobao.org"
 RUN echo "registry = $registry" >> $HOME/.npmrc
 
 RUN cd ${startup_home} && yarn --ignore-scripts --network-timeout 1000000 && \
+    # websocket path
+    sed -i "s#'/service'#process.env.NB_PREFIX + '/service'#g" node_modules/@opensumi/ide-core-node/lib/connection.js && \
     yarn run build && \
     yarn run download:extensions && \
     rm -rf ./node_modules
