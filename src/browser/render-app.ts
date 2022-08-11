@@ -20,13 +20,16 @@ export async function renderApp(opts: IClientAppOpts) {
   opts.extensionDir = opts.extensionDir || process.env.EXTENSION_DIR;
   opts.injector = injector;
   opts.wsPath = process.env.WS_PATH || window.location.protocol == 'https:' ? `wss://${hostname}:${serverPort}` : `ws://${hostname}:${serverPort}`;
+
+  opts.extWorkerHost = opts.extWorkerHost || process.env.EXTENSION_WORKER_HOST || `http://${hostname}:${staticServerPort}/worker-host.js`;
+  opts.staticServicePath = `http://${hostname}:${serverPort}`;
+
   const NB_PREFIX = process.env.NB_PREFIX;
   if (NB_PREFIX != "") {
     opts.wsPath = opts.wsPath + NB_PREFIX;
+    opts.staticServicePath = opts.staticServicePath + NB_PREFIX;
   }
-  console.log("[test] wspath: " + opts.wsPath);
-  opts.extWorkerHost = opts.extWorkerHost || process.env.EXTENSION_WORKER_HOST || `http://${hostname}:${staticServerPort}/worker-host.js`;
-  opts.staticServicePath = `http://${hostname}:${serverPort}`;
+
   const anotherHostName = process.env.WEBVIEW_HOST || hostname;
   opts.webviewEndpoint = `http://${anotherHostName}:${webviewEndpointPort}/webview`;
   opts.layoutComponent = ToolbarActionBasedLayout;
