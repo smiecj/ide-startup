@@ -20,7 +20,7 @@ RUN echo "registry = $registry" >> $HOME/.npmrc
 
 RUN cd ${startup_home} && yarn --ignore-scripts --network-timeout 1000000 && \
     # websocket path
-    sed -i "s#'/service'#process.env.NB_PREFIX + '/service'#g" node_modules/@opensumi/ide-core-node/lib/connection.js && \
+    sed -i "s#'/service'#process.env.NB_PREFIX'#g" node_modules/@opensumi/ide-core-node/lib/connection.js && \
     yarn run build && \
     yarn run download:extensions && \
     rm -rf ./node_modules
@@ -68,24 +68,25 @@ ENV IDE_SERVER_PORT 8888
 
 RUN chown -R ${NB_USER}:users /release
 
-RUN apt update && apt -yq install --no-install-recommends \
-    apt-transport-https \
-    bash \
-    bzip2 \
-    ca-certificates \
-    curl \
-    git \
-    gnupg \
-    gnupg2 \
-    locales \
-    lsb-release \
-    nano \
-    software-properties-common \
-    tzdata \
-    unzip \
-    vim \
-    wget \
-    zip
+# 后续: 完善镜像，提供基本指令和 python 环境
+# RUN apt update && apt -yq install --no-install-recommends \
+#     apt-transport-https \
+#     bash \
+#     bzip2 \
+#     ca-certificates \
+#     curl \
+#     git \
+#     gnupg \
+#     gnupg2 \
+#     locales \
+#     lsb-release \
+#     nano \
+#     software-properties-common \
+#     tzdata \
+#     unzip \
+#     vim \
+#     wget \
+#     zip
 
 USER ${NB_UID}
 
