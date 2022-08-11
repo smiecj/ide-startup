@@ -1,0 +1,22 @@
+FROM ghcr.io/opensumi/opensumi-web:latest
+
+ENV NB_USER jovyan
+ENV NB_UID 1000
+ENV HOME /home/$NB_USER
+
+# https://github.com/nodejs/docker-node/issues/289#issuecomment-267081557
+RUN groupmod -g 1001 node \
+  && usermod -u 1001 -g 1001 node
+
+RUN useradd -M -s /bin/bash -N -u ${NB_UID} ${NB_USER} \
+ && mkdir -p ${HOME} \
+ && chown -R ${NB_USER}:users ${HOME} \
+ && chown -R ${NB_USER}:users /usr/local/bin
+
+WORKDIR ${HOME}
+
+RUN chown -R ${NB_USER}:users /release
+
+USER ${NB_USER}
+
+CMD [ "node", "/release/dist-node/server/index.js" ]

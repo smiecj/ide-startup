@@ -4,6 +4,12 @@ import * as Koa from 'koa';
 import * as koaStatic from 'koa-static';
 import { Deferred } from '@opensumi/ide-core-common';
 import { IServerAppOpts, ServerApp, NodeModule } from '@opensumi/ide-core-node';
+import {
+  WebSocketHandler,
+  CommonChannelHandler,
+} from '@opensumi/ide-connection/lib/node';
+import serve = require('koa-static');
+const mount = require('koa-mount');
 
 // export const DEFAULT_OPENVSX_REGISTRY = 'https://marketplace.smartide.cn'; // China Mirror
 export const DEFAULT_OPENVSX_REGISTRY = 'https://open-vsx.org'; // Official Registry
@@ -34,7 +40,7 @@ export async function startServer(arg1: NodeModule[] | Partial<IServerAppOpts>) 
     endpoint: DEFAULT_OPENVSX_REGISTRY,
     showBuiltinExtensions: true,
   }
-  
+
   if (Array.isArray(arg1)) {
     opts = {
       ...opts,
@@ -47,12 +53,25 @@ export async function startServer(arg1: NodeModule[] | Partial<IServerAppOpts>) 
     };
   }
 
-  const serverApp = new ServerApp(opts);
-  const server = http.createServer(app.callback());
+  const NB_PREFIX = process.env.NB_PREFIX;
 
   if (process.env.NODE_ENV === 'production') {
     app.use(koaStatic(path.join(__dirname, '../../dist')));
+    
+    if (NB_PREFIX != "") {
+      let prefixSplitArr = NB_PREFIX?.split("/");
+      let currentPrefix = ""
+      prefixSplitArr?.forEach(function(prefix) {
+        if (prefix != "") {
+          currentPrefix = currentPrefix + "/" + prefix
+          app.use(mount(currentPrefix, serve(path.join(__dirname, '../../dist'))));
+        }
+      });
+    }
   }
+
+  const serverApp = new ServerApp(opts);
+  const server = http.createServer(app.callback());
 
   await serverApp.start(server);
 

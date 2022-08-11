@@ -1,17 +1,24 @@
-FROM node:14 as builder
+FROM node:14.16.0 as builder
 
 # 用户工作空间，用于打包到前端工作空间地址
 ENV WORKSPACE_DIR workspace
 ENV EXTENSION_DIR extensions
 
-COPY . .
+ARG code_home=/opt/coding
+ARG startup_home=${code_home}/ide-startup
+ARG core_home=${code_home}/opensumi-core
+RUN mkdir -p ${code_home}
+RUN cd ${code_home} && git clone https://github.com/opensumi/ide-startup
 
 ENV ELECTRON_MIRROR http://npm.taobao.org/mirrors/electron/
 
 RUN mkdir -p ${WORKSPACE_DIR}  &&\
     mkdir -p ${EXTENSION_DIR}
 
-RUN yarn --ignore-scripts --network-timeout 1000000&& \
+ARG registry="https://registry.npm.taobao.org"
+RUN echo "registry = $registry" >> $HOME/.npmrc
+
+RUN cd ${startup_home} && yarn --ignore-scripts --network-timeout 1000000 && \
     yarn run build && \
     yarn run download:extensions && \
     rm -rf ./node_modules
@@ -26,17 +33,58 @@ ENV NODE_ENV production
 RUN mkdir -p ${WORKSPACE_DIR}  &&\
     mkdir -p ${EXTENSION_DIR}
 
+ENV NB_USER jovyan
+ENV NB_UID 1000
+ENV HOME /home/$NB_USER
+
+# https://github.com/nodejs/docker-node/issues/289#issuecomment-267081557
+RUN groupmod -g 1001 node \
+  && usermod -u 1001 -g 1001 node
+
+RUN useradd -M -s /bin/bash -N -u ${NB_UID} ${NB_USER} \
+ && mkdir -p ${HOME} \
+ && chown -R ${NB_USER}:users ${HOME} \
+ && chown -R ${NB_USER}:users /usr/local/bin
+
 WORKDIR /release
 
 COPY ./configs/docker/productionDependencies.json package.json
 
 RUN yarn --network-timeout 1000000
 
-COPY --from=builder dist dist
-COPY --from=builder dist-node dist-node
-COPY --from=builder hosted hosted
-COPY --from=builder extensions /root/.sumi/extensions
+ARG code_home=/opt/coding
+ARG startup_home=${code_home}/ide-startup
 
-EXPOSE 8000
+COPY --from=builder ${startup_home}/dist dist
+COPY --from=builder ${startup_home}/dist-node dist-node
+COPY --from=builder ${startup_home}/hosted hosted
+COPY --from=builder ${startup_home}/extensions /root/.sumi/extensions
+RUN ls -l /release
 
-CMD [ "node", "./dist-node/server/index.js" ]
+EXPOSE 8888
+ENV IDE_SERVER_PORT 8888
+
+RUN chown -R ${NB_USER}:users /release
+
+RUN apt update && apt -yq install --no-install-recommends \
+    apt-transport-https \
+    bash \
+    bzip2 \
+    ca-certificates \
+    curl \
+    git \
+    gnupg \
+    gnupg2 \
+    locales \
+    lsb-release \
+    nano \
+    software-properties-common \
+    tzdata \
+    unzip \
+    vim \
+    wget \
+    zip
+
+USER ${NB_UID}
+
+CMD [ "node", "/release/dist-node/server/index.js" ]
