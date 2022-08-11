@@ -53,23 +53,6 @@ export async function startServer(arg1: NodeModule[] | Partial<IServerAppOpts>) 
     };
   }
 
-  const NB_PREFIX = process.env.NB_PREFIX;
-
-  if (process.env.NODE_ENV === 'production') {
-    app.use(koaStatic(path.join(__dirname, '../../dist')));
-    
-    if (NB_PREFIX != "") {
-      let prefixSplitArr = NB_PREFIX?.split("/");
-      let currentPrefix = ""
-      prefixSplitArr?.forEach(function(prefix) {
-        if (prefix != "") {
-          currentPrefix = currentPrefix + "/" + prefix
-          app.use(mount(currentPrefix, serve(path.join(__dirname, '../../dist'))));
-        }
-      });
-    }
-  }
-
   const serverApp = new ServerApp(opts);
   const server = http.createServer(app.callback());
 
