@@ -20,7 +20,7 @@ RUN echo "registry = $registry" >> $HOME/.npmrc
 
 RUN cd ${startup_home} && yarn --ignore-scripts --network-timeout 1000000 && \
     # websocket path
-    sed -i "s#'/service'#process.env.NB_PREFIX#g" node_modules/@opensumi/ide-core-node/lib/connection.js && \
+    sed -i "s#'/service'#process.env.NB_PREFIX != "" ? process.env.NB_PREFIX : '/service'#g" node_modules/@opensumi/ide-core-node/lib/connection.js && \
     yarn run build && \
     yarn run download:extensions && \
     rm -rf ./node_modules
