@@ -76,6 +76,7 @@
     "@opensumi/ide-workspace": "2.19.3",
     "@opensumi/ide-workspace-edit": "2.19.3",
     "koa-static": "^5.0.0",
+    "koa-static-prefix": "1.0.2",
     "node-fetch": "^2.6.1",
     "request": "2.*.*"
   },

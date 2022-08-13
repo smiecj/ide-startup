@@ -4,8 +4,7 @@ import * as Koa from 'koa';
 import * as koaStatic from 'koa-static';
 import { Deferred } from '@opensumi/ide-core-common';
 import { IServerAppOpts, ServerApp, NodeModule } from '@opensumi/ide-core-node';
-// import serve = require('koa-static');
-// const mount = require('koa-mount');
+const serve = require('koa-static-prefix');
 
 // export const DEFAULT_OPENVSX_REGISTRY = 'https://marketplace.smartide.cn'; // China Mirror
 export const DEFAULT_OPENVSX_REGISTRY = 'https://open-vsx.org'; // Official Registry
@@ -53,7 +52,12 @@ export async function startServer(arg1: NodeModule[] | Partial<IServerAppOpts>) 
   const server = http.createServer(app.callback());
 
   if (process.env.NODE_ENV === 'production') {
-    app.use(koaStatic(path.join(__dirname, '../../dist')));
+    const NB_PREFIX = process.env.NB_PREFIX;
+    if (NB_PREFIX != "") {
+      app.use(serve(path.join(__dirname, '../../dist'), { pathPrefix: NB_PREFIX}));
+    } else {
+      app.use(koaStatic(path.join(__dirname, '../../dist')));
+    }
   }
 
   await serverApp.start(server);

@@ -33,7 +33,6 @@ export async function renderApp(opts: IClientAppOpts) {
   const anotherHostName = process.env.WEBVIEW_HOST || hostname;
   opts.webviewEndpoint = `http://${anotherHostName}:${webviewEndpointPort}/webview`;
   opts.layoutComponent = ToolbarActionBasedLayout;
-  opts.connectionPath = opts.wsPath;
   const app = new ClientApp(opts);
 
   app.fireOnReload = () => {
