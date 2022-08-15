@@ -24,11 +24,8 @@ export async function renderApp(opts: IClientAppOpts) {
   opts.extWorkerHost = opts.extWorkerHost || process.env.EXTENSION_WORKER_HOST || `http://${hostname}:${staticServerPort}/worker-host.js`;
   opts.staticServicePath = `http://${hostname}:${serverPort}`;
 
-  const NB_PREFIX = process.env.NB_PREFIX;
-  if (NB_PREFIX != "") {
-    opts.wsPath = opts.wsPath + NB_PREFIX;
-    opts.staticServicePath = opts.staticServicePath + NB_PREFIX;
-  }
+  opts.wsPath = opts.wsPath + 'NB_PREFIX';
+  opts.staticServicePath = opts.staticServicePath + 'NB_PREFIX';
 
   const anotherHostName = process.env.WEBVIEW_HOST || hostname;
   opts.webviewEndpoint = `http://${anotherHostName}:${webviewEndpointPort}/webview`;

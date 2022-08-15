@@ -19,9 +19,8 @@ ARG registry="https://registry.npm.taobao.org"
 RUN echo "registry = $registry" >> $HOME/.npmrc
 
 RUN cd ${startup_home} && yarn --ignore-scripts --network-timeout 1000000 && \
-    # websocket path
-    # sed -i "s#'/service'#process.env.NB_PREFIX != '' ? process.env.NB_PREFIX : '/service'#g" node_modules/@opensumi/ide-core-node/lib/connection.js && \
-    sed -i "s#'/service'#'/smiecj/test/service'#g" node_modules/@opensumi/ide-core-node/lib/connection.js && \
+    sed -i "s#opts.pathPrefix.length);#opts.pathPrefix.length);\n          if (! ctx.path){\n            ctx.path = \"/\";\n          } #g" node_modules/koa-static-prefix/index.js && \
+    sed -i "s#'/service'#'NB_PREFIX/service'#g" node_modules/@opensumi/ide-core-node/lib/connection.js && \
     yarn run build && \
     yarn run download:extensions && \
     rm -rf ./node_modules
@@ -62,6 +61,9 @@ COPY --from=builder ${startup_home}/dist dist
 COPY --from=builder ${startup_home}/dist-node dist-node
 COPY --from=builder ${startup_home}/hosted hosted
 COPY --from=builder ${startup_home}/extensions /root/.sumi/extensions
+COPY ./scripts/init-opensumi.sh /release/
+# init script
+
 RUN ls -l /release
 
 EXPOSE 8888
@@ -91,4 +93,4 @@ RUN chown -R ${NB_USER}:users /release
 
 USER ${NB_UID}
 
-CMD [ "node", "/release/dist-node/server/index.js" ]
+CMD sh /release/init-opensumi.sh && node /release/dist-node/server/index.js
