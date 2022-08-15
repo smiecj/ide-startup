@@ -55,9 +55,15 @@ export async function startServer(arg1: NodeModule[] | Partial<IServerAppOpts>) 
     const nbPrefix = "NB_PREFIX";
     let prefixSplitArr = nbPrefix?.split("/");
     let currentPrefix = "";
-    prefixSplitArr?.forEach(function(prefix) {
+    prefixSplitArr?.reverse().forEach(function(prefix) {
       if (prefix != "") {
-        currentPrefix = currentPrefix + "/" + prefix
+        currentPrefix = "/" + prefix + currentPrefix;
+        app.use(serve(path.join(__dirname, '../../dist'), { pathPrefix: currentPrefix}));
+      }
+    })
+    prefixSplitArr?.reverse().forEach(function(prefix) {
+      if (prefix != "") {
+        currentPrefix = currentPrefix + "/" + prefix;
         app.use(serve(path.join(__dirname, '../../dist'), { pathPrefix: currentPrefix}));
       }
     })
