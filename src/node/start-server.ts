@@ -54,12 +54,13 @@ export async function startServer(arg1: NodeModule[] | Partial<IServerAppOpts>) 
   if (process.env.NODE_ENV === 'production') {
     const nbPrefix = "NB_PREFIX";
     let prefixSplitArr = nbPrefix?.split("/");
-    let currentPrefix = ""
+    let currentPrefix = "";
     prefixSplitArr?.forEach(function(prefix) {
       if (prefix != "") {
         currentPrefix = currentPrefix + "/" + prefix
         app.use(serve(path.join(__dirname, '../../dist'), { pathPrefix: currentPrefix}));
       }
+    })
   }
 
   await serverApp.start(server);
