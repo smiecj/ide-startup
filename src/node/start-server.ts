@@ -61,6 +61,7 @@ export async function startServer(arg1: NodeModule[] | Partial<IServerAppOpts>) 
         app.use(serve(path.join(__dirname, '../../dist'), { pathPrefix: currentPrefix}));
       }
     })
+    currentPrefix = "";
     prefixSplitArr?.reverse().forEach(function(prefix) {
       if (prefix != "") {
         currentPrefix = currentPrefix + "/" + prefix;
