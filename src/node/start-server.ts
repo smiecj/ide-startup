@@ -52,19 +52,14 @@ export async function startServer(arg1: NodeModule[] | Partial<IServerAppOpts>) 
   const server = http.createServer(app.callback());
 
   if (process.env.NODE_ENV === 'production') {
-    const NB_PREFIX = process.env.NB_PREFIX;
-    if (NB_PREFIX != "") {
-      let prefixSplitArr = NB_PREFIX?.split("/");
-      let currentPrefix = ""
-      prefixSplitArr?.forEach(function(prefix) {
-        if (prefix != "") {
-          currentPrefix = currentPrefix + "/" + prefix
-          app.use(serve(path.join(__dirname, '../../dist'), { pathPrefix: currentPrefix}));
-        }
-      });
-    } else {
-      app.use(koaStatic(path.join(__dirname, '../../dist')));
-    }
+    const nbPrefix = "NB_PREFIX";
+    let prefixSplitArr = nbPrefix?.split("/");
+    let currentPrefix = ""
+    prefixSplitArr?.forEach(function(prefix) {
+      if (prefix != "") {
+        currentPrefix = currentPrefix + "/" + prefix
+        app.use(serve(path.join(__dirname, '../../dist'), { pathPrefix: currentPrefix}));
+      }
   }
 
   await serverApp.start(server);
