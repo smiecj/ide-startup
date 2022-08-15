@@ -26,6 +26,7 @@ export async function renderApp(opts: IClientAppOpts) {
 
   opts.wsPath = opts.wsPath + 'NB_PREFIX';
   opts.staticServicePath = opts.staticServicePath + 'NB_PREFIX';
+  opts.extWorkerHost = opts.extWorkerHost + 'NB_PREFIX';
 
   const anotherHostName = process.env.WEBVIEW_HOST || hostname;
   opts.webviewEndpoint = `http://${anotherHostName}:${webviewEndpointPort}/webview`;
