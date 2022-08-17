@@ -21,15 +21,16 @@ export async function renderApp(opts: IClientAppOpts) {
   opts.injector = injector;
   opts.wsPath = process.env.WS_PATH || window.location.protocol == 'https:' ? `wss://${hostname}:${serverPort}` : `ws://${hostname}:${serverPort}`;
 
-  opts.extWorkerHost = opts.extWorkerHost || process.env.EXTENSION_WORKER_HOST || `http://${hostname}:${staticServerPort}/worker-host.js`;
   opts.staticServicePath = `http://${hostname}:${serverPort}`;
 
   opts.wsPath = opts.wsPath + 'NB_PREFIX';
   opts.staticServicePath = opts.staticServicePath + 'NB_PREFIX';
-  opts.extWorkerHost = opts.extWorkerHost + 'NB_PREFIX';
+  
+  opts.extWorkerHost = (window.location.protocol == 'https:' ? 'https://' : 'http://') + `${hostname}:${staticServerPort}` + 'NB_PREFIX' + '/worker-host.js'
 
   const anotherHostName = process.env.WEBVIEW_HOST || hostname;
-  opts.webviewEndpoint = `http://${anotherHostName}:${webviewEndpointPort}/webview`;
+  opts.webviewEndpoint = (window.location.protocol == 'https:' ? 'https://' : 'http://') + `${anotherHostName}:${webviewEndpointPort}` + 'NB_PREFIX' + '/webview';
+  
   opts.layoutComponent = ToolbarActionBasedLayout;
   const app = new ClientApp(opts);
 

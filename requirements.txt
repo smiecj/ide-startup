@@ -1,0 +1,6 @@
+PyMySQL==1.0.0
+pandas==1.2.0
+impyla==0.17.0
+six==1.14.0
+impala==0.2
+SQLAlchemy==1.4.23
