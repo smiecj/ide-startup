@@ -15,7 +15,8 @@ ENV ELECTRON_MIRROR http://npm.taobao.org/mirrors/electron/
 RUN mkdir -p ${WORKSPACE_DIR}  &&\
     mkdir -p ${EXTENSION_DIR}
 
-ARG registry="https://registry.npm.taobao.org"
+# ARG registry="https://registry.npmmirror.com"
+ARG registry="https://mirrors.tuna.tsinghua.edu.cn"
 RUN echo "registry = $registry" >> $HOME/.npmrc
 
 RUN echo "198.41.30.195 open-vsx.org" >> /etc/hosts
@@ -36,7 +37,7 @@ ENV NODE_ENV production
 ENV NB_USER jovyan
 ENV NB_UID 1000
 ENV HOME /home/$NB_USER
-ENV EXTENSION_DIR $HOME/.sumi/extensions
+ENV EXTENSION_DIR /extensions
 
 RUN mkdir -p ${WORKSPACE_DIR}  &&\
     mkdir -p ${EXTENSION_DIR}
@@ -49,8 +50,7 @@ RUN useradd -M -s /bin/bash -N -u ${NB_UID} ${NB_USER} \
  && mkdir -p ${HOME} \
  && chown -R ${NB_USER}:users ${HOME} \
  && chown -R ${NB_USER}:users /usr/local/bin \
- && chown -R ${NB_USER}:users ${WORKSPACE_DIR} \
- && chown -R ${NB_USER}:users ${EXTENSION_DIR}
+ && chown -R ${NB_USER}:users ${WORKSPACE_DIR}
 
 WORKDIR /release
 
@@ -74,6 +74,7 @@ EXPOSE 8888
 ENV IDE_SERVER_PORT 8888
 
 RUN chown -R ${NB_USER}:users /release
+RUN chown -R ${NB_USER}:users ${EXTENSION_DIR}
 
 # install basic command
 ARG apt_key="871920D1991BC93C"
@@ -99,6 +100,10 @@ RUN apt update && apt -yq install --no-install-recommends \
     rm -rf /var/lib/apt/lists/*
 
 # install python (conda)
+COPY condarc $HOME/.condarc
+RUN mkdir -p $HOME/.pip
+COPY pip.conf $HOME/.pip/
+
 ENV CONDA_DIR /opt/conda
 ENV PATH "${CONDA_DIR}/bin:${PATH}"
 RUN mkdir -p ${CONDA_DIR} \
@@ -106,6 +111,8 @@ RUN mkdir -p ${CONDA_DIR} \
  && echo ". /opt/conda/etc/profile.d/conda.sh" >> /etc/profile \
  && echo "conda activate base" >> ${HOME}/.bashrc \
  && echo "conda activate base" >> /etc/profile \
+ && echo "alias ll='ls -l'" >> /etc/profile \
+ && echo "alias rm='rm -f'" >> /etc/profile \
  && chown -R ${NB_USER}:users ${CONDA_DIR} \
  && chown -R ${NB_USER}:users ${HOME}
 
@@ -138,18 +145,14 @@ RUN conda_version=`curl -L ${CONDA_REPO_HOME} | grep "title=" | grep -v "LatestR
     && chown -R ${NB_USER}:users ${CONDA_DIR} \
     && chown -R ${NB_USER}:users ${HOME}
 
+# add 1337 user (istio securityContext)
+RUN groupadd -g 1337 1337
+
 USER ${NB_UID}
 
 # install requirement
 COPY --chown=jovyan:users requirements.txt /tmp
 RUN python3 -m pip install -r /tmp/requirements.txt --quiet --no-cache-dir \
  && rm -f /tmp/requirements.txt
-
-# alias
-
-RUN sed -i "s/alias cp/#alias cp/g" $HOME/.bashrc
-RUN sed -i "s/alias mv/#alias mv/g" $HOME/.bashrc
-RUN echo "alias ll='ls -l'" >> $HOME/.bashrc
-RUN echo "alias rm='rm -f'" >> $HOME/.bashrc
 
 CMD sh /release/init-opensumi.sh && node /release/dist-node/server/index.js

@@ -29,6 +29,7 @@ export async function startServer(arg1: NodeModule[] | Partial<IServerAppOpts>) 
       '/',
     ],
     extHost: extensionHost,
+    marketplace: 
   };
 
   opts.marketplace = {

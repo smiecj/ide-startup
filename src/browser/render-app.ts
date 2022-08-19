@@ -22,7 +22,6 @@ export async function renderApp(opts: IClientAppOpts) {
   opts.wsPath = process.env.WS_PATH || window.location.protocol == 'https:' ? `wss://${hostname}:${serverPort}` : `ws://${hostname}:${serverPort}`;
 
   opts.wsPath = opts.wsPath + 'NB_PREFIX';
-  // 当前: 修复这个 改成 https
   opts.staticServicePath = (window.location.protocol == 'https:' ? 'https://' : 'http://') + `${hostname}:${serverPort}` + 'NB_PREFIX';
   
   opts.extWorkerHost = (window.location.protocol == 'https:' ? 'https://' : 'http://') + `${hostname}:${staticServerPort}` + 'NB_PREFIX' + '/worker-host.js'
