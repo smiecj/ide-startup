@@ -15,8 +15,8 @@ ENV ELECTRON_MIRROR http://npm.taobao.org/mirrors/electron/
 RUN mkdir -p ${WORKSPACE_DIR}  &&\
     mkdir -p ${EXTENSION_DIR}
 
-# ARG registry="https://registry.npmmirror.com"
-ARG registry="https://mirrors.tuna.tsinghua.edu.cn"
+ARG registry="https://registry.npmmirror.com"
+# ARG registry="https://mirrors.tuna.tsinghua.edu.cn"
 RUN echo "registry = $registry" >> $HOME/.npmrc
 
 RUN echo "198.41.30.195 open-vsx.org" >> /etc/hosts
@@ -34,9 +34,6 @@ ENV WORKSPACE_DIR /workspace
 ENV EXT_MODE js
 ENV NODE_ENV production
 
-ENV NB_USER jovyan
-ENV NB_UID 1000
-ENV HOME /home/$NB_USER
 ENV EXTENSION_DIR /extensions
 
 RUN mkdir -p ${WORKSPACE_DIR}  &&\
@@ -45,12 +42,6 @@ RUN mkdir -p ${WORKSPACE_DIR}  &&\
 # https://github.com/nodejs/docker-node/issues/289#issuecomment-267081557
 RUN groupmod -g 1001 node \
   && usermod -u 1001 -g 1001 node
-
-RUN useradd -M -s /bin/bash -N -u ${NB_UID} ${NB_USER} \
- && mkdir -p ${HOME} \
- && chown -R ${NB_USER}:users ${HOME} \
- && chown -R ${NB_USER}:users /usr/local/bin \
- && chown -R ${NB_USER}:users ${WORKSPACE_DIR}
 
 WORKDIR /release
 
@@ -72,9 +63,6 @@ RUN ls -l /release
 
 EXPOSE 8888
 ENV IDE_SERVER_PORT 8888
-
-RUN chown -R ${NB_USER}:users /release
-RUN chown -R ${NB_USER}:users ${EXTENSION_DIR}
 
 # install basic command
 ARG apt_key="871920D1991BC93C"
@@ -112,9 +100,8 @@ RUN mkdir -p ${CONDA_DIR} \
  && echo "conda activate base" >> ${HOME}/.bashrc \
  && echo "conda activate base" >> /etc/profile \
  && echo "alias ll='ls -l'" >> /etc/profile \
- && echo "alias rm='rm -f'" >> /etc/profile \
- && chown -R ${NB_USER}:users ${CONDA_DIR} \
- && chown -R ${NB_USER}:users ${HOME}
+ && echo "alias rm='rm -f'" >> /etc/profile
+
 
 ARG PIP_VERSION=21.1.2
 ARG PYTHON_VERSION=3.8.10
@@ -141,17 +128,13 @@ RUN conda_version=`curl -L ${CONDA_REPO_HOME} | grep "title=" | grep -v "LatestR
         conda=${conda_version:0:-2} \
         pip=${PIP_VERSION} \
     && conda update -y -q --all \
-    && conda clean -a -f -y \
-    && chown -R ${NB_USER}:users ${CONDA_DIR} \
-    && chown -R ${NB_USER}:users ${HOME}
+    && conda clean -a -f -y
 
 # add 1337 user (istio securityContext)
 RUN groupadd -g 1337 1337
 
-USER ${NB_UID}
-
 # install requirement
-COPY --chown=jovyan:users requirements.txt /tmp
+COPY requirements.txt /tmp
 RUN python3 -m pip install -r /tmp/requirements.txt --quiet --no-cache-dir \
  && rm -f /tmp/requirements.txt
 

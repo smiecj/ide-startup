@@ -23,7 +23,6 @@ export async function renderApp(opts: IClientAppOpts) {
 
   opts.wsPath = opts.wsPath + 'NB_PREFIX';
   opts.staticServicePath = (window.location.protocol == 'https:' ? 'https://' : 'http://') + `${hostname}:${serverPort}` + 'NB_PREFIX';
-  
   opts.extWorkerHost = (window.location.protocol == 'https:' ? 'https://' : 'http://') + `${hostname}:${staticServerPort}` + 'NB_PREFIX' + '/worker-host.js'
 
   const anotherHostName = process.env.WEBVIEW_HOST || hostname;
