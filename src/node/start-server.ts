@@ -15,7 +15,8 @@ export async function startServer(arg1: NodeModule[] | Partial<IServerAppOpts>) 
   process.env.EXT_MODE = 'js';
   const port = process.env.IDE_SERVER_PORT || 8000;
   const workspaceDir = process.env.WORKSPACE_DIR || '/home/jovyan';
-  const extensionDir = process.env.EXTENSION_DIR || path.join(__dirname, '../../extensions');
+  // 当前: 确认 extensionDir 注入问题
+  const extensionDir = process.env.EXTENSION_DIR || path.join(__dirname, '../../extensions') || "/extensions";
   const extensionHost = process.env.EXTENSION_HOST_ENTRY || 
   process.env.NODE_ENV === 'production' ? path.join(__dirname, '..', '..', 'hosted/ext.process.js') : path.join(__dirname, '..', '..', 'hosted/ext.process.js');
   let opts: IServerAppOpts = {

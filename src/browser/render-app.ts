@@ -17,7 +17,7 @@ export async function renderApp(opts: IClientAppOpts) {
   const webviewEndpointPort = process.env.DEVELOPMENT ? 8899 : window.location.port;
   opts.workspaceDir = '/home/hovyan';
 
-  opts.extensionDir = opts.extensionDir || process.env.EXTENSION_DIR;
+  opts.extensionDir = opts.extensionDir || process.env.EXTENSION_DIR || "/extensions";
   opts.injector = injector;
   opts.wsPath = process.env.WS_PATH || window.location.protocol == 'https:' ? `wss://${hostname}:${serverPort}` : `ws://${hostname}:${serverPort}`;
 
