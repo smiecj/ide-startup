@@ -15,7 +15,7 @@ export async function renderApp(opts: IClientAppOpts) {
   const serverPort = process.env.DEVELOPMENT ? (process.env.IDE_SERVER_PORT || 8000) : window.location.port;
   const staticServerPort = process.env.DEVELOPMENT ? 8080 : window.location.port;
   const webviewEndpointPort = process.env.DEVELOPMENT ? 8899 : window.location.port;
-  opts.workspaceDir = '/home/hovyan';
+  opts.workspaceDir = '/home/jovyan';
 
   opts.extensionDir = opts.extensionDir || process.env.EXTENSION_DIR || "/extensions";
   opts.injector = injector;
